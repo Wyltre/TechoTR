@@ -1,3 +1,4 @@
+import os
 import random
 import webbrowser
 import speech_recognition as sr
@@ -6,6 +7,21 @@ from playsound import playsound
 
 # Karşılama mesajları
 greetings = ["Merhaba!", "Selam!", "Nasılsınız?", "Size nasıl yardımcı olabilirim?"]
+
+# Yardım metni
+help_text = """
+Mevcut komutlar:
+- "merhaba": Asistana selam verir.
+- "nasılsın": Asistanın durumu hakkında bilgi alır.
+- "teşekkür": Asistana teşekkür eder.
+- "yardım": Kullanılabilir komutları listeler.
+- "youtube aç [video adı]": Belirtilen videoyu YouTube'da arar ve açar.
+- "ara [arama sorgusu]": Belirtilen sorguyu Google'da arar.
+- "[sayı] ile [sayı] topla": İki sayıyı toplar.
+- "[sayı] ile [sayı] çarp": İki sayıyı çarpar.
+- "TechoTR": Özel bir selam.
+- "kapat": Programı sonlandırır.
+"""
 
 # Fonksiyonlar
 def assist(user_input):
@@ -16,14 +32,14 @@ def assist(user_input):
     elif "nasılsın" in user_input.lower():
         return "Ben sadece bir programım, ancak işler yolunda, teşekkür ederim! Siz nasılsınız?"
     elif "yardım" in user_input.lower():
-        return "Nasıl yardımcı olabilirim?"
+        return help_text
     elif "youtube aç" in user_input.lower():
-        video_name = user_input[len("youtube aç") + 1:]  # 'youtube aç' ifadesini çıkarıp geri kalanı al
+        video_name = user_input[len("youtube aç") + 1:].strip()
         youtube_search_url = f"https://www.youtube.com/results?search_query={video_name}"
         webbrowser.open(youtube_search_url)
         return f"{video_name} için YouTube araması yapılıyor..."
     elif "ara" in user_input.lower():
-        search_query = user_input[len("ara") + 1:]  # 'ara' ifadesini çıkarıp geri kalanı al
+        search_query = user_input[len("ara") + 1:].strip()
         search_url = f"https://www.google.com/search?q={search_query}"
         webbrowser.open(search_url)
         return f"'{search_query}' için web araması yapılıyor..."
@@ -37,8 +53,10 @@ def assist(user_input):
         if len(numbers) != 2:
             return "Lütfen iki sayı girin."
         return f"{numbers[0]} ile {numbers[1]} çarpımı {numbers[0] * numbers[1]}"
-    elif "enes" in user_input.lower():
-        return "Kral Enes, selam!"
+    elif "TechoTR" in user_input.lower():
+        return "Kral TechoTR, selam!"
+    elif "kapat" in user_input.lower():
+        return "Program sonlandırılıyor..."
     else:
         return "Üzgünüm, bunu anlayamadım. Başka bir şey denemek ister misiniz?"
 
@@ -51,7 +69,7 @@ def select_interaction_method():
         else:
             print("Geçersiz seçim. Lütfen 'yazı' veya 'ses' olarak seçin.")
 
-# ses girişini almak için
+# Ses girişi
 def get_audio():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
@@ -60,24 +78,27 @@ def get_audio():
         audio = recognizer.listen(source)
         try:
             print("Ses tanınmaya çalışılıyor...")
-            text = recognizer.recognize_google(audio, language="tr-TR")  # Türkçe sesi tanıma
+            text = recognizer.recognize_google(audio, language="tr-TR") # Türkçe sesi tanıma.
             return text.lower()
         except sr.UnknownValueError:
             return "Üzgünüm, anlayamadım."
         except sr.RequestError as e:
             return f"Bağlantı hatası: {e}"
 
-# sesli yanıtını oluşturmak için
+# Sesli yanıtını oluşturmak için
 def generate_response_text(user_input):
     return assist(user_input)
 
-# asistanın sesli yanıtını çalıştırmak için
+# Asistanın sesli yanıtı
 def speak(text):
     tts = gTTS(text=text, lang='tr')
-    tts.save("response.mp3")
-    playsound("response.mp3")
+    rand = random.randint(1, 100)
+    file = f'ses-{rand}.mp3'
+    tts.save(file)
+    playsound(file)
+    os.remove(file)
 
-# etkileşim
+# Etkileşim
 interaction_method = select_interaction_method()
 while True:
     if interaction_method == "yazı":
@@ -103,5 +124,6 @@ while True:
     if "kapat" in user_input.lower():
         print("Program sonlandırılıyor...")
         break
-
-# github.com/wyltre
+   
+# github/wlytre
+# TechoTR
